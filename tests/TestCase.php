@@ -1,9 +1,9 @@
 <?php
 
-namespace Mohamedahmed01\laravelCorrelation\Tests;
+namespace Mohamedahmed01\LaravelCorrelation\Tests;
 
 use Orchestra\Testbench\TestCase as BaseTestCase;
-use Mohamedahmed01\laravelCorrelation\CorrelationServiceProvider;
+use Mohamedahmed01\LaravelCorrelation\CorrelationServiceProvider;
 
 class TestCase extends BaseTestCase
 {

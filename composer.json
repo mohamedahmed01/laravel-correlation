@@ -22,13 +22,13 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Mohamedahmed01\\laravelCorrelation\\Tests\\": "tests/"
+            "Mohamedahmed01\\LaravelCorrelation\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Mohamedahmed01\\laravelCorrelation\\CorrelationServiceProvider"
+                "Mohamedahmed01\\LaravelCorrelation\\CorrelationServiceProvider"
             ]
         }
     },

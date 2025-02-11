@@ -1,6 +1,6 @@
 <?php
 
-use Mohamedahmed01\laravelCorrelation\Http\Middleware\CorrelationMiddleware;
+use Mohamedahmed01\LaravelCorrelation\Http\Middleware\CorrelationMiddleware;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 

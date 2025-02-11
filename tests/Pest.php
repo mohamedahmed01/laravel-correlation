@@ -1,5 +1,5 @@
 <?php
 
-use Mohamedahmed01\laravelCorrelation\Tests\TestCase;
+use Mohamedahmed01\LaravelCorrelation\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);

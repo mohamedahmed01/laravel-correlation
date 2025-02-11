@@ -1,9 +1,9 @@
 <?php
 
-namespace Mohamedahmed01\laravelCorrelation;
+namespace Mohamedahmed01\LaravelCorrelation;
 
 use Illuminate\Support\ServiceProvider;
-use Mohamedahmed01\laravelCorrelation\Http\Middleware\CorrelationMiddleware;
+use Mohamedahmed01\LaravelCorrelation\Http\Middleware\CorrelationMiddleware;
 
 class CorrelationServiceProvider extends ServiceProvider
 {

@@ -36,7 +36,7 @@ The correlation ID will be:
 Add to `app/Http/Kernel.php`:
 
     protected $middleware = [
-        \Mohamedahmed01\laravelCorrelation\Http\Middleware\CorrelationMiddleware::class,
+        \Mohamedahmed01\LaravelCorrelation\Http\Middleware\CorrelationMiddleware::class,
     ];
 
 ### Accessing the Correlation ID
