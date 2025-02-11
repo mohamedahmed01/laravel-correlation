@@ -6,7 +6,7 @@ A package to manage correlation IDs for request tracing in Laravel applications.
 Installation
 ------------
 
-    composer require smith/correlation
+    composer require mohamedahmed01/laravel-correlation
 
 Configuration
 -------------
