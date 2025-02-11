@@ -14,7 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Smith\\Correlation\\": "src/"
+            "Mohamedahmed01\\LaravelCorrelation\\": "src/"
         },
         "files": [
             "src/helpers.php"
