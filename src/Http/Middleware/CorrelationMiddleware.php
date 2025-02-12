@@ -22,7 +22,9 @@ class CorrelationMiddleware
         else {
             config(['logging.context.correlation_id' => $correlationId]);
         }
-    
+
+        $response = $next($request);
+        
         if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
             $response->headers->set($headerName, $correlationId);
         }
