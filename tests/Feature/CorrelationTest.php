@@ -27,19 +27,17 @@ test('uses existing correlation id', function () {
 
 test('correlation id appears in logs', function () {
     Route::get('/test', function () {
-        \Log::info('Test log');
+        \Log::info('Test log'); // No explicit context
         return response();
     })->middleware(CorrelationMiddleware::class);
 
-    // Allow all log methods but expect specific info call
     $logger = \Log::spy();
     
     $this->get('/test');
 
-    // Assert only about the expected log call
     $logger->shouldHaveReceived('info')
         ->once()
-        ->withArgs(function ($message, $context) {
+        ->withArgs(function ($message, $context = []) {
             return $message === 'Test log' &&
                    array_key_exists('correlation_id', $context) &&
                    is_string($context['correlation_id']);
