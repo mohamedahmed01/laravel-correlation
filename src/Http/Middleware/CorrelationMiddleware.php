@@ -28,17 +28,20 @@ class CorrelationMiddleware
 
     protected function addLogContext(string $correlationId): void
     {
-        // Method 1: For Laravel 8.65+ with shareContext
         if (method_exists(\Log::class, 'shareContext')) {
             \Log::shareContext(['correlation_id' => $correlationId]);
         }
         
-        // Method 2: For older versions using config
         config(['logging.context.correlation_id' => $correlationId]);
-
-        // Method 3: Direct processor for Monolog
+    
         $logger = app('log')->getLogger();
         $logger->pushProcessor(function ($record) use ($correlationId) {
+            if ($record instanceof \Monolog\LogRecord) {
+                return $record->with(
+                    context: array_merge($record->context, ['correlation_id' => $correlationId])
+                );
+            }
+            
             $record['context']['correlation_id'] = $correlationId;
             return $record;
         });

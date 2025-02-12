@@ -44,21 +44,19 @@ test('correlation id appears in logs', function () {
 
     $logs = $testHandler->getRecords();
     
-    // Convert LogRecord objects to arrays if needed
-    $processedLogs = array_map(function ($record) {
-        return $record instanceof \Monolog\LogRecord ? [
-            'message' => $record->message,
-            'context' => $record->context,
-            'channel' => $record->channel,
-            'level' => $record->level->getName(),
-        ] : $record;
-    }, $logs);
+    $testLog = collect($logs)->first(function ($log) {
+        if ($log instanceof \Monolog\LogRecord) {
+            return $log->message === 'Test log';
+        }
+        return $log['message'] === 'Test log';
+    });
 
-    $testLog = collect($processedLogs)->firstWhere('message', 'Test log');
+    $context = $testLog instanceof \Monolog\LogRecord 
+        ? $testLog->context 
+        : $testLog['context'];
 
-    expect($testLog)->toBeArray()
-        ->and($testLog['context'])->toHaveKey('correlation_id')
-        ->and($testLog['context']['correlation_id'])->toBe($response->headers->get(config('correlation.header')));
+    expect($context)->toHaveKey('correlation_id')
+        ->and($context['correlation_id'])->toBe($response->headers->get(config('correlation.header')));
 });
 
 test('helper function returns correlation id', function () {
