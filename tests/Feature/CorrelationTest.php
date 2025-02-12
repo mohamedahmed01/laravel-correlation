@@ -28,23 +28,27 @@ test('uses existing correlation id', function () {
 });
 
 test('correlation id appears in logs', function () {
-    $testHandler = new TestHandler();
-    Log::channel('stack')->getLogger()->pushHandler($testHandler);
+    // Setup test logger
+    $testHandler = new \Monolog\Handler\TestHandler();
+    $logger = \Log::getLogger();
+    $logger->setHandlers([$testHandler]);
 
     Route::get('/test', function () {
-        Log::info('Test log');
-        return response()->noContent();
+        \Log::info('Test log');
+        return response();
     })->middleware(CorrelationMiddleware::class);
 
-    // Send request
     $this->get('/test');
 
+    // Get all log records
     $logs = $testHandler->getRecords();
+    
+    // Filter for our test log message
     $filteredLogs = array_filter($logs, fn ($log) => $log['message'] === 'Test log');
+    
     expect($filteredLogs)->toHaveCount(1)
-        ->and($logs[0]['message'])->toBe('Test log')
-        ->and($logs[0]['context'])->toHaveKey('correlation_id')
-        ->and($logs[0]['context']['correlation_id'])->toBeUuid();
+        ->and($filteredLogs[0]['context'])->toHaveKey('correlation_id')
+        ->and($filteredLogs[0]['context']['correlation_id'])->toBeUuid();
 });
 
 test('helper function returns correlation id', function () {

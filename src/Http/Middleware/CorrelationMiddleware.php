@@ -13,13 +13,17 @@ class CorrelationMiddleware
     {
         $headerName = config('correlation.header', 'X-Correlation-ID');
         $correlationId = $request->header($headerName) ?? Str::uuid()->toString();
-
+    
         app()->instance('correlation.id', $correlationId);
         
-        $response = $next($request);
-
-        $response->headers->set($headerName, $correlationId);
-
-        return $response;
+        if (method_exists(\Log::class, 'shareContext')) {
+            \Log::shareContext(['correlation_id' => $correlationId]);
+        }
+        else {
+            config(['logging.context.correlation_id' => $correlationId]);
+        }
+    
+        return tap($next($request), function ($response) use ($headerName, $correlationId) {
+            $response->headers->set($headerName, $correlationId);
+        });
     }
-}
