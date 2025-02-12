@@ -27,3 +27,4 @@ class CorrelationMiddleware
             $response->headers->set($headerName, $correlationId);
         });
     }
+}
