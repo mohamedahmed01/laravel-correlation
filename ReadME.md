@@ -1,7 +1,10 @@
 Laravel Correlation ID Middleware
 =================================
 
-A package to manage correlation IDs for request tracing in Laravel applications.
+A package to manage correlation IDs for request tracing in Laravel applications,
+A correlation ID is a randomly generated identifier for every request entering a distributed system. Developers use the correlation identifier to trace the request as it makes its way through the system, identify any cyber security threats, and prevent them.
+The correlation ID basically serves as a thread that connects the various parts of a request as it moves through the system. This greatly simplifies distributed system debugging and troubleshooting by allowing developers to track a request’s progress and readily pinpoint the service or component where an issue occurred.
+
 
 Installation
 ------------
