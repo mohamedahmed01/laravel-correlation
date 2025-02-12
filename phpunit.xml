@@ -11,5 +11,8 @@
     </testsuites>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="LOG_CHANNEL" value="stack"/>
+        <env name="LOG_STACK" value="single"/>
+        <env name="LOG_CONTEXT" value="true"/>
     </php>
 </phpunit>

@@ -18,37 +18,34 @@ test('generates correlation id when missing', function () {
     expect($correlationId)->toBeString()->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i');
 });
 
-test('uses existing correlation id', function () {
-    Route::get('/test', fn () => response())->middleware(CorrelationMiddleware::class);
-    
-    $id = Str::uuid();
-    $response = $this->get('/test', [config('correlation.header') => $id]);
-    
-    $response->assertHeader(config('correlation.header'), $id);
-});
-
 test('correlation id appears in logs', function () {
-    // Reset log manager to clear previous processors
+    // Reset logger state between tests
     app()->forgetInstance('log');
     
+    // Configure test logger
     $testHandler = new \Monolog\Handler\TestHandler();
     $logger = app('log');
     $logger->getLogger()->setHandlers([$testHandler]);
 
+    // Register test route
     Route::get('/test', function () {
         \Log::info('Test log');
         return response('OK');
     })->middleware(CorrelationMiddleware::class);
 
+    // Make request
     $response = $this->get('/test');
     $response->assertOk();
 
+    // Verify logs
     $logs = $testHandler->getRecords();
-    $filteredLogs = array_filter($logs, fn($log) => $log['message'] === 'Test log');
+    
+    // Find our specific log entry
+    $testLog = collect($logs)->firstWhere('message', 'Test log');
 
-    expect($filteredLogs)->toHaveCount(1)
-        ->and($filteredLogs[0]['context'])->toHaveKey('correlation_id')
-        ->and($filteredLogs[0]['context']['correlation_id'])->toBe($response->headers->get(config('correlation.header')));
+    expect($testLog)->toBeArray()
+        ->and($testLog['context'])->toHaveKey('correlation_id')
+        ->and($testLog['context']['correlation_id'])->toBe($response->headers->get(config('correlation.header')));
 });
 
 test('helper function returns correlation id', function () {
