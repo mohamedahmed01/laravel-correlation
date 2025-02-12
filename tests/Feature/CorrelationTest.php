@@ -35,7 +35,7 @@ test('correlation id appears in logs', function () {
 
     Route::get('/test', function () {
         \Log::info('Test log');
-        return response();
+        return response('OK');
     })->middleware(CorrelationMiddleware::class);
 
     $this->get('/test');
