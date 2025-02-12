@@ -3,6 +3,8 @@
 use Mohamedahmed01\LaravelCorrelation\Http\Middleware\CorrelationMiddleware;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Monolog\Handler\TestHandler;
 
 test('generates correlation id when missing', function () {
     Route::get('/test', fn () => response())->middleware(CorrelationMiddleware::class);
@@ -26,17 +28,19 @@ test('uses existing correlation id', function () {
 });
 
 test('correlation id appears in logs', function () {
-    config(['logging.default' => 'array']);
-    
+    $testHandler = new TestHandler();
+    Log::channel('stack')->getLogger()->pushHandler($testHandler);
+
     Route::get('/test', function () {
-        \Log::info('Test log');
+        Log::info('Test log');
         return response();
     })->middleware(CorrelationMiddleware::class);
 
+    // Send request
     $this->get('/test');
 
-    $logs = \Log::driver('array')->getLogs();
-    
+    $logs = $testHandler->getRecords();
+
     expect($logs)->toHaveCount(1)
         ->and($logs[0]['message'])->toBe('Test log')
         ->and($logs[0]['context'])->toHaveKey('correlation_id')
