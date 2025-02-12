@@ -28,27 +28,37 @@ test('uses existing correlation id', function () {
 });
 
 test('correlation id appears in logs', function () {
-    // Setup test logger
+    app()->forgetInstance('log');
+    
     $testHandler = new \Monolog\Handler\TestHandler();
-    $logger = \Log::getLogger();
-    $logger->setHandlers([$testHandler]);
+    $logger = app('log');
+    $logger->getLogger()->setHandlers([$testHandler]);
 
     Route::get('/test', function () {
         \Log::info('Test log');
         return response('OK');
     })->middleware(CorrelationMiddleware::class);
 
-    $this->get('/test');
+    $response = $this->get('/test');
+    $response->assertOk();
 
-    // Get all log records
     $logs = $testHandler->getRecords();
     
-    // Filter for our test log message
-    $filteredLogs = array_filter($logs, fn ($log) => $log['message'] === 'Test log');
-    
-    expect($filteredLogs)->toHaveCount(1)
-        ->and($filteredLogs[0]['context'])->toHaveKey('correlation_id')
-        ->and($filteredLogs[0]['context']['correlation_id'])->toBeUuid();
+    // Convert LogRecord objects to arrays if needed
+    $processedLogs = array_map(function ($record) {
+        return $record instanceof \Monolog\LogRecord ? [
+            'message' => $record->message,
+            'context' => $record->context,
+            'channel' => $record->channel,
+            'level' => $record->level->getName(),
+        ] : $record;
+    }, $logs);
+
+    $testLog = collect($processedLogs)->firstWhere('message', 'Test log');
+
+    expect($testLog)->toBeArray()
+        ->and($testLog['context'])->toHaveKey('correlation_id')
+        ->and($testLog['context']['correlation_id'])->toBe($response->headers->get(config('correlation.header')));
 });
 
 test('helper function returns correlation id', function () {
