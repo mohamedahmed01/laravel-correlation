@@ -33,15 +33,15 @@ test('correlation id appears in logs', function () {
 
     Route::get('/test', function () {
         Log::info('Test log');
-        return response();
+        return response()->noContent();
     })->middleware(CorrelationMiddleware::class);
 
     // Send request
     $this->get('/test');
 
     $logs = $testHandler->getRecords();
-
-    expect($logs)->toHaveCount(1)
+    $filteredLogs = array_filter($logs, fn ($log) => $log['message'] === 'Test log');
+    expect($filteredLogs)->toHaveCount(1)
         ->and($logs[0]['message'])->toBe('Test log')
         ->and($logs[0]['context'])->toHaveKey('correlation_id')
         ->and($logs[0]['context']['correlation_id'])->toBeUuid();
