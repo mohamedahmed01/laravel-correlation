@@ -31,14 +31,19 @@ test('correlation id appears in logs', function () {
         return response();
     })->middleware(CorrelationMiddleware::class);
 
-    \Log::shouldReceive('info')
-        ->once()
-        ->withArgs(fn ($message, $context) => 
-            array_key_exists('correlation_id', $context) &&
-            is_string($context['correlation_id'])
-        )->andReturnNull();
-
+    // Allow all log methods but expect specific info call
+    $logger = \Log::spy();
+    
     $this->get('/test');
+
+    // Assert only about the expected log call
+    $logger->shouldHaveReceived('info')
+        ->once()
+        ->withArgs(function ($message, $context) {
+            return $message === 'Test log' &&
+                   array_key_exists('correlation_id', $context) &&
+                   is_string($context['correlation_id']);
+        });
 });
 
 test('helper function returns correlation id', function () {
