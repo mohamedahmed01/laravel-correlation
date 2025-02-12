@@ -26,22 +26,21 @@ test('uses existing correlation id', function () {
 });
 
 test('correlation id appears in logs', function () {
+    config(['logging.default' => 'array']);
+    
     Route::get('/test', function () {
-        \Log::info('Test log'); // No explicit context
+        \Log::info('Test log');
         return response();
     })->middleware(CorrelationMiddleware::class);
 
-    $logger = \Log::spy();
-    
     $this->get('/test');
 
-    $logger->shouldHaveReceived('info')
-        ->once()
-        ->withArgs(function ($message, $context = []) {
-            return $message === 'Test log' &&
-                   array_key_exists('correlation_id', $context) &&
-                   is_string($context['correlation_id']);
-        });
+    $logs = \Log::driver('array')->getLogs();
+    
+    expect($logs)->toHaveCount(1)
+        ->and($logs[0]['message'])->toBe('Test log')
+        ->and($logs[0]['context'])->toHaveKey('correlation_id')
+        ->and($logs[0]['context']['correlation_id'])->toBeUuid();
 });
 
 test('helper function returns correlation id', function () {
