@@ -13,9 +13,9 @@ class CorrelationMiddleware
     {
         $headerName = config('correlation.header', 'X-Correlation-ID');
         $correlationId = $request->header($headerName) ?? Str::uuid()->toString();
-
+        config(['logging.context.correlation_id' => $correlationId]);
         app()->instance('correlation.id', $correlationId);
-
+        
         $response = $next($request);
 
         $response->headers->set($headerName, $correlationId);

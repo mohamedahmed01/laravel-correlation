@@ -10,8 +10,10 @@ test('generates correlation id when missing', function () {
     $response = $this->get('/test');
     
     $headerName = config('correlation.header');
+    $correlationId = $response->headers->get($headerName);
+    
     $response->assertHeader($headerName);
-    expect($response->headers->get($headerName))->toBeUuid();
+    expect($correlationId)->toBeString()->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i');
 });
 
 test('uses existing correlation id', function () {
@@ -28,11 +30,14 @@ test('correlation id appears in logs', function () {
         \Log::info('Test log');
         return response();
     })->middleware(CorrelationMiddleware::class);
-    
+
     \Log::shouldReceive('info')
         ->once()
-        ->withArgs(fn ($message, $context) => array_key_exists('correlation_id', $context));
-    
+        ->withArgs(fn ($message, $context) => 
+            array_key_exists('correlation_id', $context) &&
+            is_string($context['correlation_id'])
+        )->andReturnNull();
+
     $this->get('/test');
 });
 
