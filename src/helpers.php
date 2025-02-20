@@ -1,10 +1,8 @@
 <?php
 
-use Illuminate\Contracts\Foundation\Application;
-
-if (! function_exists('correlation_id')) {
-    function correlation_id(): ?string
+if (!function_exists('correlation_id')) {
+    function correlation_id()
     {
-        return app()->has('correlation.id') ? app('correlation.id') : null;
+        return app('correlation.id');
     }
 }
